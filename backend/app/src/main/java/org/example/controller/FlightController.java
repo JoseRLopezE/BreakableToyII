@@ -25,6 +25,9 @@ public class FlightController {
             @RequestParam String currency,
             @RequestParam(required = false, defaultValue = "false") boolean nonStop
     ) {
+        if (date == null || date.trim().isEmpty()) {
+            return Mono.just(ResponseEntity.badRequest().body("Missing required parameter: date"));
+        }
         return amadeusService.searchFlights(origin, destination, date, adults, currency, nonStop)
                 .map(ResponseEntity::ok);
     }

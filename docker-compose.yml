@@ -5,8 +5,8 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - AMADEUS_CLIENT_ID=${AMADEUS_CLIENT_ID}
-      - AMADEUS_CLIENT_SECRET=${AMADEUS_CLIENT_SECRET}
+      - AMADEUS_CLIENT_ID=pL66YNSD3oDu5BIuI5hTyRonuEOVRYAj
+      - AMADEUS_CLIENT_SECRET=0XQFGqeT7jxy2Gg8
     restart: unless-stopped
   frontend:
     build: ./frontend

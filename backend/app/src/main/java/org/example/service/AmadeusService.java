@@ -73,6 +73,9 @@ public class AmadeusService {
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                 .retrieve()
                 .bodyToMono(String.class)
-        );
+        ).onErrorResume(e -> {
+            e.printStackTrace();
+            return Mono.just("{\"error\": \"Failed to fetch airports: " + e.getMessage() + "\"}");
+        });
     }
 }
