@@ -78,4 +78,19 @@ public class AmadeusService {
             return Mono.just("{\"error\": \"Failed to fetch airports: " + e.getMessage() + "\"}");
         });
     }
+
+    public Mono<String> lookupAirline(String airlineCode) {
+        return getAccessToken().flatMap(token ->
+            webClient.get()
+                .uri(UriComponentsBuilder.fromPath("/v1/reference-data/airlines")
+                    .queryParam("airlineCodes", airlineCode)
+                    .build().toUriString())
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                .retrieve()
+                .bodyToMono(String.class)
+        ).onErrorResume(e -> {
+            e.printStackTrace();
+            return Mono.just("{\"error\": \"Failed to fetch airline info: " + e.getMessage() + "\"}");
+        });
+    }
 }

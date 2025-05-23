@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { lookupAirline } from '../api';
 
 interface Props {
   flight: any;
@@ -12,35 +13,57 @@ function formatTime(dt: string) {
 }
 
 export default function FlightDetails({ flight, onBack }: Props) {
+  const [airlineNames, setAirlineNames] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    // Collect all unique carrier codes from all segments
+    const codes = Array.from(new Set(
+      (flight.itineraries || []).flatMap((itin: any) =>
+        (itin.segments || []).map((seg: any) => String(seg.carrierCode))
+      )
+    ));
+    codes.forEach(code => {
+      if (code && typeof code === 'string' && !(code in airlineNames)) {
+        lookupAirline(code).then(data => {
+          const name = data?.data?.[0]?.businessName || data?.data?.[0]?.commonName || data?.data?.[0]?.name || code;
+          setAirlineNames(prev => ({ ...prev, [code]: name }));
+        }).catch(() => {
+          setAirlineNames(prev => ({ ...prev, [code]: code }));
+        });
+      }
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [flight]);
+
   return (
     <div className="flight-details">
       <button onClick={onBack}>&lt; Back to Results</button>
       <div style={{ display: 'flex', gap: 32 }}>
         <div style={{ flex: 2 }}>
-          {flight.itineraries?.map((itin: any, i: number) => (
-            <div key={i} className="segment-box">
-              <div className="segment-info">
-                <div><strong>Segment {i + 1}</strong></div>
-                {itin.segments?.map((seg: any, j: number) => (
-                  <div key={j} style={{ marginBottom: 8 }}>
-                    {formatTime(seg.departure?.at)} - {formatTime(seg.arrival?.at)}<br />
-                    {seg.departure?.iataCode} - {seg.arrival?.iataCode}<br />
-                    {seg.carrierCode} {seg.number} {seg.operating && seg.operating.carrierCode !== seg.carrierCode ? `(Operated by ${seg.operating.carrierCode})` : ''}<br />
-                    Aircraft: {seg.aircraft?.code}<br />
-                  </div>
-                ))}
+          {flight.itineraries?.map((itin: any, itinIdx: number) => (
+            itin.segments?.map((seg: any, segIdx: number) => (
+              <div key={`itin${itinIdx}-seg${segIdx}`} className="segment-box">
+                <div className="segment-info">
+                  <div><strong>Segment {segIdx + 1}</strong></div>
+                  {formatTime(seg.departure?.at)} - {formatTime(seg.arrival?.at)}<br />
+                  {seg.departure?.iataCode} - {seg.arrival?.iataCode}<br />
+                  {airlineNames[String(seg.carrierCode)] || seg.carrierCode} {seg.number} {seg.operating && seg.operating.carrierCode !== seg.carrierCode ? `(Operated by ${airlineNames[String(seg.operating.carrierCode)] || seg.operating.carrierCode})` : ''}<br />
+                  Aircraft: {seg.aircraft?.code}<br />
+                </div>
+                <div className="fare-details">
+                  <div><strong>Travelers fare details</strong></div>
+                  {flight.travelerPricings?.map((tp: any, tIdx: number) => {
+                    const fare = tp.fareDetailsBySegment?.find((f: any) => f.segmentId === seg.id);
+                    return (
+                      <div key={tIdx} style={{ marginBottom: 8 }}>
+                        Traveler {tIdx + 1}: {fare?.cabin || 'N/A'} / {fare?.class || 'N/A'}
+                        <br />Amenities: {Array.isArray(fare?.amenities) && fare.amenities.length > 0 ? fare.amenities.map((a: any) => a?.name ? `${a.name}${a.chargeable ? ' (chargeable)' : ''}` : null).filter(Boolean).join(', ') : 'None'}
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
-              <div className="fare-details">
-                <div><strong>Travelers fare details</strong></div>
-                {/* Add traveler fare details per segment if available */}
-                {flight.travelerPricings?.map((tp: any, tIdx: number) => (
-                  <div key={tIdx} style={{ marginBottom: 8 }}>
-                    Traveler {tIdx + 1}: {tp.fareDetailsBySegment?.[i]?.cabin} / {tp.fareDetailsBySegment?.[i]?.class}
-                    <br />Amenities: {tp.fareDetailsBySegment?.[i]?.amenities?.map((a: any) => `${a.name}${a.chargeable ? ' (chargeable)' : ''}`).join(', ')}
-                  </div>
-                ))}
-              </div>
-            </div>
+            ))
           ))}
         </div>
         <div style={{ flex: 1 }}>

@@ -27,3 +27,9 @@ export async function searchFlights(params: {
   if (!res.ok) throw new Error('Failed to fetch flights');
   return res.json();
 }
+
+export async function lookupAirline(code: string) {
+  const res = await fetch(`${API_URL}/airline?code=${encodeURIComponent(code)}`);
+  if (!res.ok) throw new Error('Failed to fetch airline info');
+  return res.json();
+}
