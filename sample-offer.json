@@ -1,0 +1,238 @@
+{
+  "type": "flight-offer",
+  "id": "1",
+  "source": "GDS",
+  "instantTicketingRequired": false,
+  "nonHomogeneous": false,
+  "oneWay": false,
+  "isUpsellOffer": false,
+  "lastTicketingDate": "2025-05-24",
+  "lastTicketingDateTime": "2025-05-24",
+  "numberOfBookableSeats": 9,
+  "itineraries": [
+    {
+      "duration": "PT10H30M",
+      "segments": [
+        {
+          "departure": {
+            "iataCode": "JFK",
+            "terminal": "7",
+            "at": "2025-06-01T20:25:00"
+          },
+          "arrival": {
+            "iataCode": "KEF",
+            "at": "2025-06-02T06:15:00"
+          },
+          "carrierCode": "FI",
+          "number": "614",
+          "aircraft": {
+            "code": "76W"
+          },
+          "operating": {
+            "carrierCode": "FI"
+          },
+          "duration": "PT5H50M",
+          "id": "105",
+          "numberOfStops": 0,
+          "blacklistedInEU": false
+        },
+        {
+          "departure": {
+            "iataCode": "KEF",
+            "at": "2025-06-02T07:40:00"
+          },
+          "arrival": {
+            "iataCode": "LHR",
+            "terminal": "2",
+            "at": "2025-06-02T11:55:00"
+          },
+          "carrierCode": "FI",
+          "number": "450",
+          "aircraft": {
+            "code": "76W"
+          },
+          "operating": {
+            "carrierCode": "FI"
+          },
+          "duration": "PT3H15M",
+          "id": "106",
+          "numberOfStops": 0,
+          "blacklistedInEU": false
+        }
+      ]
+    }
+  ],
+  "price": {
+    "currency": "USD",
+    "total": "374.80",
+    "base": "189.00",
+    "fees": [
+      {
+        "amount": "0.00",
+        "type": "SUPPLIER"
+      },
+      {
+        "amount": "0.00",
+        "type": "TICKETING"
+      }
+    ],
+    "grandTotal": "374.80",
+    "additionalServices": [
+      {
+        "amount": "84.00",
+        "type": "CHECKED_BAGS"
+      }
+    ]
+  },
+  "pricingOptions": {
+    "fareType": [
+      "PUBLISHED"
+    ],
+    "includedCheckedBagsOnly": false
+  },
+  "validatingAirlineCodes": [
+    "FI"
+  ],
+  "travelerPricings": [
+    {
+      "travelerId": "1",
+      "fareOption": "STANDARD",
+      "travelerType": "ADULT",
+      "price": {
+        "currency": "USD",
+        "total": "374.80",
+        "base": "189.00"
+      },
+      "fareDetailsBySegment": [
+        {
+          "segmentId": "105",
+          "cabin": "ECONOMY",
+          "fareBasis": "OP1QUSLT",
+          "brandedFare": "LIGHT",
+          "brandedFareLabel": "ECONOMY LIGHT",
+          "class": "O",
+          "includedCheckedBags": {
+            "quantity": 0
+          },
+          "includedCabinBags": {
+            "quantity": 1
+          },
+          "amenities": [
+            {
+              "description": "CHECKED BAG UP TO 23KG",
+              "isChargeable": true,
+              "amenityType": "BAGGAGE",
+              "amenityProvider": {
+                "name": "BrandedFare"
+              }
+            },
+            {
+              "description": "ALCOHOLIC DRINK",
+              "isChargeable": true,
+              "amenityType": "MEAL",
+              "amenityProvider": {
+                "name": "BrandedFare"
+              }
+            },
+            {
+              "description": "NON ALCOHOLIC DRINK",
+              "isChargeable": false,
+              "amenityType": "MEAL",
+              "amenityProvider": {
+                "name": "BrandedFare"
+              }
+            },
+            {
+              "description": "MEAL",
+              "isChargeable": true,
+              "amenityType": "MEAL",
+              "amenityProvider": {
+                "name": "BrandedFare"
+              }
+            },
+            {
+              "description": "USB POWER",
+              "isChargeable": false,
+              "amenityType": "ENTERTAINMENT",
+              "amenityProvider": {
+                "name": "BrandedFare"
+              }
+            },
+            {
+              "description": "BASIC SEAT",
+              "isChargeable": true,
+              "amenityType": "BRANDED_FARES",
+              "amenityProvider": {
+                "name": "BrandedFare"
+              }
+            }
+          ]
+        },
+        {
+          "segmentId": "106",
+          "cabin": "ECONOMY",
+          "fareBasis": "OP1QUSLT",
+          "brandedFare": "LIGHT",
+          "brandedFareLabel": "ECONOMY LIGHT",
+          "class": "O",
+          "includedCheckedBags": {
+            "quantity": 0
+          },
+          "includedCabinBags": {
+            "quantity": 1
+          },
+          "amenities": [
+            {
+              "description": "CHECKED BAG UP TO 23KG",
+              "isChargeable": true,
+              "amenityType": "BAGGAGE",
+              "amenityProvider": {
+                "name": "BrandedFare"
+              }
+            },
+            {
+              "description": "ALCOHOLIC DRINK",
+              "isChargeable": true,
+              "amenityType": "MEAL",
+              "amenityProvider": {
+                "name": "BrandedFare"
+              }
+            },
+            {
+              "description": "NON ALCOHOLIC DRINK",
+              "isChargeable": false,
+              "amenityType": "MEAL",
+              "amenityProvider": {
+                "name": "BrandedFare"
+              }
+            },
+            {
+              "description": "MEAL",
+              "isChargeable": true,
+              "amenityType": "MEAL",
+              "amenityProvider": {
+                "name": "BrandedFare"
+              }
+            },
+            {
+              "description": "USB POWER",
+              "isChargeable": false,
+              "amenityType": "ENTERTAINMENT",
+              "amenityProvider": {
+                "name": "BrandedFare"
+              }
+            },
+            {
+              "description": "BASIC SEAT",
+              "isChargeable": true,
+              "amenityType": "BRANDED_FARES",
+              "amenityProvider": {
+                "name": "BrandedFare"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

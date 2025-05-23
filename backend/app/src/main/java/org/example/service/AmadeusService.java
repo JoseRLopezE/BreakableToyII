@@ -18,11 +18,15 @@ public class AmadeusService {
 
     // Main constructor for production
     @Autowired
-    public AmadeusService(AmadeusConfig config) {
-        this(config, WebClient.builder()
+    public AmadeusService(AmadeusConfig config, WebClient.Builder webClientBuilder) {
+        this.config = config;
+        this.webClient = webClientBuilder
                 .baseUrl(config.getBaseUrl())
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                .build());
+                .exchangeStrategies(org.springframework.web.reactive.function.client.ExchangeStrategies.builder()
+                        .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(10 * 1024 * 1024)) // 10MB
+                        .build())
+                .build();
     }
 
     // Secondary constructor for tests (inject mock WebClient)
@@ -59,7 +63,47 @@ public class AmadeusService {
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                 .retrieve()
                 .bodyToMono(String.class)
+                .map(json -> injectEstimatedFeesIfMissing(json))
         );
+    }
+
+    private String injectEstimatedFeesIfMissing(String json) {
+        try {
+            com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+            com.fasterxml.jackson.databind.JsonNode root = mapper.readTree(json);
+            if (root.has("data") && root.get("data").isArray()) {
+                for (com.fasterxml.jackson.databind.JsonNode offer : root.get("data")) {
+                    com.fasterxml.jackson.databind.node.ObjectNode price = (com.fasterxml.jackson.databind.node.ObjectNode) offer.get("price");
+                    if (price != null) {
+                        com.fasterxml.jackson.databind.node.ArrayNode fees = (com.fasterxml.jackson.databind.node.ArrayNode) price.get("fees");
+                        double base = price.has("base") ? price.get("base").asDouble() : 0.0;
+                        double total = price.has("total") ? price.get("total").asDouble() : 0.0;
+                        boolean allZero = true;
+                        if (fees != null && fees.size() > 0) {
+                            for (com.fasterxml.jackson.databind.JsonNode fee : fees) {
+                                if (fee.has("amount") && fee.get("amount").asDouble() > 0.0) {
+                                    allZero = false;
+                                    break;
+                                }
+                            }
+                        }
+                        if (((fees == null || fees.isEmpty()) || allZero) && total > base) {
+                            double estimated = total - base;
+                            com.fasterxml.jackson.databind.node.ObjectNode feeObj = mapper.createObjectNode();
+                            feeObj.put("amount", String.format("%.2f", estimated));
+                            feeObj.put("type", "ESTIMATED_FEES");
+                            com.fasterxml.jackson.databind.node.ArrayNode newFees = mapper.createArrayNode();
+                            newFees.add(feeObj);
+                            price.set("fees", newFees);
+                        }
+                    }
+                }
+            }
+            return mapper.writeValueAsString(root);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return json;
+        }
     }
 
     // Example: Search for airports (to be expanded)
@@ -67,7 +111,7 @@ public class AmadeusService {
         return getAccessToken().flatMap(token ->
             webClient.get()
                 .uri(UriComponentsBuilder.fromPath("/v1/reference-data/locations")
-                    .queryParam("subType", "AIRPORT")
+                    .queryParam("subType", "AIRPORT,CITY")
                     .queryParam("keyword", keyword)
                     .build().toUriString())
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
@@ -91,6 +135,21 @@ public class AmadeusService {
         ).onErrorResume(e -> {
             e.printStackTrace();
             return Mono.just("{\"error\": \"Failed to fetch airline info: " + e.getMessage() + "\"}");
+        });
+    }
+
+    public Mono<String> priceFlightOffer(String flightOfferJson) {
+        return getAccessToken().flatMap(token ->
+            webClient.post()
+                .uri("/v1/shopping/flight-offers/pricing")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(flightOfferJson)
+                .retrieve()
+                .bodyToMono(String.class)
+        ).onErrorResume(e -> {
+            e.printStackTrace();
+            return Mono.just("{\"error\": \"Failed to price flight offer: " + e.getMessage() + "\"}");
         });
     }
 }

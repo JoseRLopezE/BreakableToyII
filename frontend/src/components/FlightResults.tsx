@@ -61,44 +61,46 @@ export default function FlightResults({ results, onSelect, onBack }: Props) {
   }
 
   return (
-    <div className="flight-results">
-      <button onClick={onBack}>&lt; Return to Search</button>
-      <div style={{ margin: '16px 0' }}>
-        <label>Sort by: </label>
-        <select value={sortBy} onChange={e => setSortBy(e.target.value as 'price' | 'duration' | '')}>
+    <div className="flight-results max-w-3xl mx-auto">
+      <button onClick={onBack} className="mb-4 text-blue-600 hover:underline">&lt; Return to Search</button>
+      <div className="mb-4 flex items-center gap-2">
+        <label className="font-semibold">Sort by:</label>
+        <select value={sortBy} onChange={e => setSortBy(e.target.value as 'price' | 'duration' | '')} className="border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400">
           <option value="">None</option>
           <option value="price">Price</option>
           <option value="duration">Duration</option>
         </select>
       </div>
-      {sortedResults.length === 0 && <div>No flights found.</div>}
+      {sortedResults.length === 0 && <div className="text-gray-500">No flights found.</div>}
+      <div className="flex flex-col gap-4">
       {sortedResults.map((flight, idx) => {
         const itin = flight.itineraries?.[0];
         const segs = itin?.segments || [];
         const stops = segs.length - 1;
         const airline = segs[0]?.carrierCode;
         return (
-          <div key={idx} className="flight-result-card" onClick={() => onSelect(flight)}>
-            <div>
-              <strong>{formatTime(segs[0]?.departure?.at)} - {formatTime(segs.at(-1)?.arrival?.at)}</strong><br />
-              {segs[0]?.departure?.iataCode} - {segs.at(-1)?.arrival?.iataCode}
+          <div key={idx} className="flight-result-card bg-white rounded-lg shadow p-4 flex flex-col gap-2 cursor-pointer hover:shadow-lg transition" onClick={() => onSelect(flight)}>
+            <div className="flex justify-between items-center">
+              <div>
+                <strong>{formatTime(segs[0]?.departure?.at)} - {formatTime(segs.at(-1)?.arrival?.at)}</strong><br />
+                {segs[0]?.departure?.iataCode} - {segs.at(-1)?.arrival?.iataCode}
+              </div>
+              <div className="text-right">
+                {airline && <div className="font-semibold text-blue-700">{airlineNames[airline] || airline}</div>}
+                <div className="text-lg font-bold">{flight.price?.total} {flight.price?.currency}</div>
+                <div className="text-xs text-gray-500">{flight.price?.grandTotal || flight.price?.total} {flight.price?.currency} per Traveler</div>
+              </div>
             </div>
-            <div>
+            <div className="text-sm text-gray-700">
               {formatDuration(itin?.duration)} {stops > 0 ? `(${stops} stop${stops > 1 ? 's' : ''})` : '(Nonstop)'}
               {stops > 0 && segs.slice(1).map((s: any, i: number) => (
-                <div key={i} style={{ fontSize: '0.9em', color: '#555' }}>{formatDuration(s.duration)} in {s.departure?.iataCode}</div>
+                <div key={i} className="text-xs text-gray-500">{formatDuration(s.duration)} in {s.departure?.iataCode}</div>
               ))}
-            </div>
-            <div>
-              {airline && <div>{airlineNames[airline] || airline}</div>}
-            </div>
-            <div className="price">
-              <div><strong>{flight.price?.total} {flight.price?.currency}</strong> total</div>
-              <div>{flight.price?.grandTotal || flight.price?.total} {flight.price?.currency} per Traveler</div>
             </div>
           </div>
         );
       })}
+      </div>
     </div>
   );
 }

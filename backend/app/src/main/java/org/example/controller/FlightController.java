@@ -29,7 +29,7 @@ public class FlightController {
         if (date == null || date.trim().isEmpty()) {
             return Mono.just(ResponseEntity.badRequest().body("Missing required parameter: date"));
         }
-        return amadeusService.searchFlights(origin, destination, date, adults, currency, nonStop, cabin)
+        return amadeusService.searchFlights(origin, destination, date, adults, currency, nonStop)
                 .map(ResponseEntity::ok);
     }
 
@@ -42,6 +42,12 @@ public class FlightController {
     @GetMapping("/airline")
     public Mono<ResponseEntity<String>> lookupAirline(@RequestParam String code) {
         return amadeusService.lookupAirline(code)
+                .map(ResponseEntity::ok);
+    }
+
+    @PostMapping("/price-offer")
+    public Mono<ResponseEntity<String>> priceFlightOffer(@RequestBody String flightOfferJson) {
+        return amadeusService.priceFlightOffer(flightOfferJson)
                 .map(ResponseEntity::ok);
     }
 }

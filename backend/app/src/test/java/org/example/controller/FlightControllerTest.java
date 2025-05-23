@@ -23,7 +23,7 @@ public class FlightControllerTest {
     public void testSearchFlights() {
         Mockito.when(amadeusService.searchFlights("MEX", "JFK", "2025-06-01", 1, "USD", true))
                 .thenReturn(Mono.just("flight-result"));
-        ResponseEntity<String> response = controller.searchFlights("MEX", "JFK", "2025-06-01", 1, "USD", true).block();
+        ResponseEntity<String> response = controller.searchFlights("MEX", "JFK", "2025-06-01", 1, "USD", true, null).block();
         assertNotNull(response);
         assertEquals("flight-result", response.getBody());
     }

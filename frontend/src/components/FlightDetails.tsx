@@ -36,28 +36,38 @@ export default function FlightDetails({ flight, onBack }: Props) {
   }, [flight]);
 
   return (
-    <div className="flight-details">
-      <button onClick={onBack}>&lt; Back to Results</button>
-      <div style={{ display: 'flex', gap: 32 }}>
-        <div style={{ flex: 2 }}>
+    <div className="flight-details max-w-4xl mx-auto bg-white rounded-lg shadow p-8 mt-8">
+      <button onClick={onBack} className="mb-4 text-blue-600 hover:underline">&lt; Back to Results</button>
+      <div className="flex flex-col md:flex-row gap-8">
+        <div className="flex-1">
           {flight.itineraries?.map((itin: any, itinIdx: number) => (
             itin.segments?.map((seg: any, segIdx: number) => (
-              <div key={`itin${itinIdx}-seg${segIdx}`} className="segment-box">
-                <div className="segment-info">
-                  <div><strong>Segment {segIdx + 1}</strong></div>
-                  {formatTime(seg.departure?.at)} - {formatTime(seg.arrival?.at)}<br />
-                  {seg.departure?.iataCode} - {seg.arrival?.iataCode}<br />
-                  {airlineNames[String(seg.carrierCode)] || seg.carrierCode} {seg.number} {seg.operating && seg.operating.carrierCode !== seg.carrierCode ? `(Operated by ${airlineNames[String(seg.operating.carrierCode)] || seg.operating.carrierCode})` : ''}<br />
-                  Aircraft: {seg.aircraft?.code}<br />
-                </div>
-                <div className="fare-details">
-                  <div><strong>Travelers fare details</strong></div>
+              <div key={`itin${itinIdx}-seg${segIdx}`} className="mb-6 p-4 border-b last:border-b-0">
+                <div className="font-bold text-lg mb-1">Segment {segIdx + 1}</div>
+                <div className="text-gray-700 mb-1">{formatTime(seg.departure?.at)} - {formatTime(seg.arrival?.at)}</div>
+                <div className="mb-1">{seg.departure?.iataCode} - {seg.arrival?.iataCode}</div>
+                <div className="mb-1">{airlineNames[String(seg.carrierCode)] || seg.carrierCode} {seg.number} {seg.operating && seg.operating.carrierCode !== seg.carrierCode ? `(Operated by ${airlineNames[String(seg.operating.carrierCode)] || seg.operating.carrierCode})` : ''}</div>
+                <div className="mb-1 text-sm text-gray-500">Aircraft: {seg.aircraft?.code}</div>
+                <div className="mt-2">
+                  <div className="font-semibold">Travelers fare details</div>
                   {flight.travelerPricings?.map((tp: any, tIdx: number) => {
-                    const fare = tp.fareDetailsBySegment?.find((f: any) => f.segmentId === seg.id);
+                    // Try to match fare by segmentId, but fallback to first fare if not found
+                    let fare = tp.fareDetailsBySegment?.find((f: any) => f.segmentId === seg.id);
+                    if (!fare && Array.isArray(tp.fareDetailsBySegment) && tp.fareDetailsBySegment.length === 1) {
+                      fare = tp.fareDetailsBySegment[0];
+                    }
+                    // Debug: log segmentId and fare
+                    // console.log('Segment', seg.id, 'Fare', fare);
                     return (
-                      <div key={tIdx} style={{ marginBottom: 8 }}>
-                        Traveler {tIdx + 1}: {fare?.cabin || 'N/A'} / {fare?.class || 'N/A'}
-                        <br />Amenities: {Array.isArray(fare?.amenities) && fare.amenities.length > 0 ? fare.amenities.map((a: any) => a?.name ? `${a.name}${a.chargeable ? ' (chargeable)' : ''}` : null).filter(Boolean).join(', ') : 'None'}
+                      <div key={tIdx} className="mb-2 text-sm">
+                        <span className="font-medium">Traveler {tIdx + 1}:</span> {fare?.cabin || 'N/A'} / {fare?.class || 'N/A'}
+                        <br />Amenities: {Array.isArray(fare?.amenities) && fare.amenities.length > 0
+                          ? fare.amenities.map((a: any, i: number) =>
+                              a?.description
+                                ? `${a.description}${a.isChargeable ? ' (chargeable)' : ''}`
+                                : null
+                            ).filter(Boolean).join(', ')
+                          : 'None'}
                       </div>
                     );
                   })}
@@ -66,17 +76,23 @@ export default function FlightDetails({ flight, onBack }: Props) {
             ))
           ))}
         </div>
-        <div style={{ flex: 1 }}>
-          <div className="price-breakdown">
-            <div><strong>Price Breakdown</strong></div>
+        <div className="flex-1">
+          <div className="bg-gray-50 rounded-lg p-4 mb-6">
+            <div className="font-bold mb-2">Price Breakdown</div>
             <div>Base: {flight.price?.base} {flight.price?.currency}</div>
-            <div>Fees: {flight.price?.fees?.map((f: any) => `${f.amount} ${flight.price?.currency}`).join(', ')}</div>
-            <div>Total: {flight.price?.total} {flight.price?.currency}</div>
+            <div>
+              Estimated Fees: {flight.price?.fees && flight.price.fees.length > 0
+                ? flight.price.fees.map((f: any, i: number) => (
+                    <span key={i}>{f.amount} {flight.price?.currency}{i < flight.price.fees.length - 1 ? ', ' : ''}</span>
+                  ))
+                : '0.00'}
+            </div>
+            <div className="font-semibold">Total: {flight.price?.total} {flight.price?.currency}</div>
           </div>
-          <div className="per-traveler">
-            <div><strong>Per Traveler</strong></div>
+          <div className="bg-gray-50 rounded-lg p-4">
+            <div className="font-bold mb-2">Per Traveler</div>
             {flight.travelerPricings?.map((tp: any, tIdx: number) => (
-              <div key={tIdx}>
+              <div key={tIdx} className="mb-1">
                 Traveler {tIdx + 1}: {tp.price?.total} {flight.price?.currency}
               </div>
             ))}

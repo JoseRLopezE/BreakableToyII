@@ -1,8 +1,8 @@
 // API utility for frontend to call backend endpoints
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080/api';
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
 
 export async function searchAirports(keyword: string) {
-  const res = await fetch(`${API_URL}/airports?keyword=${encodeURIComponent(keyword)}`);
+  const res = await fetch(`${API_URL}/api/airports?keyword=${encodeURIComponent(keyword)}`);
   if (!res.ok) throw new Error('Failed to fetch airports');
   return res.json();
 }
@@ -23,13 +23,13 @@ export async function searchFlights(params: {
     currency: params.currency,
     nonStop: params.nonStop ? 'true' : 'false',
   });
-  const res = await fetch(`${API_URL}/flights?${query}`);
+  const res = await fetch(`${API_URL}/api/flights?${query}`);
   if (!res.ok) throw new Error('Failed to fetch flights');
   return res.json();
 }
 
 export async function lookupAirline(code: string) {
-  const res = await fetch(`${API_URL}/airline?code=${encodeURIComponent(code)}`);
+  const res = await fetch(`${API_URL}/api/airline?code=${encodeURIComponent(code)}`);
   if (!res.ok) throw new Error('Failed to fetch airline info');
   return res.json();
 }

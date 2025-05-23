@@ -38,7 +38,7 @@ export default function FlightSearchForm({ onSearch }: Props) {
   };
 
   return (
-    <form className="flight-search-form" onSubmit={e => {
+    <form className="flight-search-form bg-white p-8 rounded-lg shadow-md flex flex-col gap-4 max-w-md mx-auto" onSubmit={e => {
       e.preventDefault();
       if (!validate()) {
         setError('Please check your input. Dates must be valid and not in the past.');
@@ -52,7 +52,7 @@ export default function FlightSearchForm({ onSearch }: Props) {
       onSearch({ origin, destination, date: departureDate, returnDate, adults, currency, nonStop });
     }}>
       <div>
-        <label>Departure Airport</label>
+        <label className="font-semibold block mb-1">Departure Airport or City</label>
         <input
           type="text"
           value={origin}
@@ -62,15 +62,18 @@ export default function FlightSearchForm({ onSearch }: Props) {
           }}
           list="origin-airports"
           required
+          className="border rounded px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
         />
         <datalist id="origin-airports">
           {originOptions.map((a: any) => (
-            <option key={a.id} value={a.iataCode}>{a.name} ({a.iataCode})</option>
+            <option key={a.id} value={a.iataCode}>
+              {a.name} ({a.iataCode}){a.subType === 'CITY' ? ' [City]' : ''}
+            </option>
           ))}
         </datalist>
       </div>
       <div>
-        <label>Arrival Airport</label>
+        <label className="font-semibold block mb-1">Arrival Airport or City</label>
         <input
           type="text"
           value={destination}
@@ -80,40 +83,43 @@ export default function FlightSearchForm({ onSearch }: Props) {
           }}
           list="destination-airports"
           required
+          className="border rounded px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
         />
         <datalist id="destination-airports">
           {destinationOptions.map((a: any) => (
-            <option key={a.id} value={a.iataCode}>{a.name} ({a.iataCode})</option>
+            <option key={a.id} value={a.iataCode}>
+              {a.name} ({a.iataCode}){a.subType === 'CITY' ? ' [City]' : ''}
+            </option>
           ))}
         </datalist>
       </div>
       <div>
-        <label>Departure Date</label>
-        <input type="date" value={departureDate} min={today} onChange={e => setDepartureDate(e.target.value)} required />
+        <label className="font-semibold block mb-1">Departure Date</label>
+        <input type="date" value={departureDate} min={today} onChange={e => setDepartureDate(e.target.value)} required className="border rounded px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-400" />
       </div>
       <div>
-        <label>Return Date</label>
-        <input type="date" value={returnDate} min={departureDate || today} onChange={e => setReturnDate(e.target.value)} />
+        <label className="font-semibold block mb-1">Return Date</label>
+        <input type="date" value={returnDate} min={departureDate || today} onChange={e => setReturnDate(e.target.value)} className="border rounded px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-400" />
       </div>
       <div>
-        <label>Currency</label>
-        <select value={currency} onChange={e => setCurrency(e.target.value)}>
+        <label className="font-semibold block mb-1">Currency</label>
+        <select value={currency} onChange={e => setCurrency(e.target.value)} className="border rounded px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-400">
           <option value="USD">USD</option>
           <option value="MXN">MXN</option>
           <option value="EUR">EUR</option>
         </select>
       </div>
       <div>
-        <label>Adults</label>
-        <input type="number" min={1} value={adults} onChange={e => setAdults(Number(e.target.value))} required />
+        <label className="font-semibold block mb-1">Adults</label>
+        <input type="number" min={1} value={adults} onChange={e => setAdults(Number(e.target.value))} required className="border rounded px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-400" />
       </div>
       <div>
-        <label>
-          <input type="checkbox" checked={nonStop} onChange={e => setNonStop(e.target.checked)} /> Non-stop
+        <label className="inline-flex items-center">
+          <input type="checkbox" checked={nonStop} onChange={e => setNonStop(e.target.checked)} className="mr-2" /> Non-stop
         </label>
       </div>
-      {error && <div className="error">{error}</div>}
-      <button type="submit" disabled={loading || !validate()}>Search</button>
+      {error && <div className="text-red-600 font-semibold">{error}</div>}
+      <button type="submit" disabled={loading || !validate()} className="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50">Search</button>
     </form>
   );
 }
